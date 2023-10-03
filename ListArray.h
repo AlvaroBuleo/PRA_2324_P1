@@ -21,5 +21,5 @@ class ListArray : public List<T> {
 		virtual T get(int pos) override;
 		virtual int search(T e) override;
 		virtual bool empty() override;
-		virtual int size() override;
+		int size();
 };
