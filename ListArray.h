@@ -1,104 +1,130 @@
 #include <ostream>
 #include "List.h"
 
-template <typename T> 
-class ListArray : public List<T> {
-	private:
-    		T* arr;
-	      	int max;
-		int n;
-		static const int MINSIZE = 2;
-	public:
-		ListArray(){
-			arr = new T[MINSIZE];
-			n = MINSIZE;
-			max = 10;
-		}
-		~ListArray();
-		T operator[](int pos){
-			if(pos < 0 || pos >= size()){
-                                throw std::out_of_range("La posicion que intentas insertar no es valida");
-                        }
-                        else{
-                        	return arr[pos];
-                        }
-		}
+template <typename T>
 
-		friend std::ostream& operator<<(std::ostream &out, const ListArray<T> &list);
-		void resize(int new_size);
-		virtual void insert(int pos,T e) override{
-			if(pos < 0 || pos >= size()){
-				throw std::out_of_range("La posicion que intentas insertar no es valida");
-			}
-			else{
-				n++;
-				for(int i = size()-1;i >= pos;i--){
-					if(arr[i] != NULL){
-						arr[i+1] = arr[i];
-					}
-				}
-				arr[pos] = e;
-			}
-		}
+class ListArray : public List<T>{
 
-		virtual void append(T e) override{
-			n++;
-			arr[size()-1] = e;
-		}
+private:
+  	T* arr;
+  	int max;
+  	int n;
+  	static const int MINSIZE = 2;
+  	
+	void resize(int new_size){
+ 		T aux[new_size];
+      		for(int i = 0; i < new_size ;i++)
+        		aux[i] = arr[i];
+		delete arr;
+      		arr = new int [new_size];
+      		for(int i = 0; i < new_size ;i++)
+        		arr[i] = aux[i];
+      		max = new_size;
+	}
 
-		virtual void prepend(T e) override{
-                	n++;
-                        for(int i = size()-1;i >= 0;i--){
-       				if(arr[i] != NULL){
-				   	arr[i+1] = arr[i];
-				}
-			}      
-		 	arr[0] = e;
-		}
+public:
+  
+  	ListArray(){ 
+    		arr = new int [MINSIZE];
+    		max = 2;
+    		n = 0;
+  	}
+  
+  	~ListArray(){
+    		delete[] arr;
+  	}
 
-		virtual T remove(int pos) override{
-			if(pos < 0 || pos >= size()){
-                                throw std::out_of_range("La posicion que intentas insertar no es valida");
-			}
-                        else{
-                                arr[pos] = NULL;
-				int maxpos = size() - pos;
-				for(int i = 1;i < maxpos;i++){
-					if(arr[pos+i] != NULL){
-						arr[pos+i-1] = arr[pos+i];
-						arr[pos+i] = NULL;
-					}
-				}
-				n--;
-			}
-		}
+  	T operator[](int pos){
+    		if(pos > n || pos < 0){
+      			throw std::out_of_range("Posición externa al array");
+    		}
+    		else 
+      			return arr[pos];
+  	}
+  
+  	friend std::ostream& operator<<(std::ostream &out, const ListArray<T> &list){
+    		out<<"List -> [ ";
+	  	for(int i = 0; i < list.n ; i++)
+     			out<< list.arr[i]<<" ";
+		out<<"]";
+    		return out;
+  	}
 
-		virtual T get(int pos) override{
-			if(pos < 0 || pos >= size()){
-                                throw std::out_of_range("La posicion que intentas insertar no es valida");
-			}
-                        else{
-                                return arr[pos];
-                        }
-		}
+  	virtual void insert(int pos, T e) override{
+  		if(pos > n || pos < 0)
+      			throw std::out_of_range("Posición externa al array");
+     		if(size() == max)
+             		resize(size()*2);
+      		if (pos == 0)
+			prepend(e);
+      		else if(pos == n)
+			append(e);
+      		else{
+	 		for(int i = n ; i > pos ; i--){
+		      		arr[i] = arr[i-1];	 		
+	      		}
+	      		arr[pos] = e;
+	      		n++;
+      		}
+ 	} 
+  	
+	virtual void prepend(T e) override{
+      		if(size() == max)
+	     		resize(size()*2);
+      		else{
+	      		for(int i = n; i > 0; i --)
+		     		arr[i] = arr[i-1];
+			arr[0] = e;
+	      		n++;
+      		} 
+    	}
+    
+ 	virtual void append(T e) override{
+      		if(size() == max)
+             		resize(size()*2);
+      		arr[n] = e;
+      		n++;
+    	}
 
-		virtual int search(T e) override{
-			for(int i = 0;i < size();i++){
-				if(arr[i] == e)
-					return i;
-			}
-			return -1;
-		}
+  	virtual T remove(int pos) override{
+      		T aux;
+	  	if(pos > size()-1 || pos < 0)
+			throw std::out_of_range("Posición externa al array");
+      		else{
+	    		aux = arr[pos];  
+	   		for(int i = pos; i < n; i++)
+				arr[i] = arr[i+1];
+	      		
+	   		n--;
+			return aux;
+      		}
+      	}
+    
+  	virtual T get(int pos) override{
+      		if(pos > size()-1 || pos < 0)
+			throw std::out_of_range("Posición externa al array");
+      		else
+			return arr[pos];
+      	}
 
-		virtual bool empty() override{
-			for(int i = 0;i < size();i++){
-				if(arr[i] != NULL)
-					return false;
-			}
+  	virtual int search(T e) override{
+      		for(int i = 0; i < n ; i++){
+			if ( arr[i] == e)
+	  			return i;
+      		}
+      		return -1;
+    	}
+
+  	virtual bool empty() override{
+      		if(n == 0)
 			return true;
-		}
-
-		int size(){
-			return n;
-		}	
+      		else 
+			return false;
+    	}
+    
+  	virtual int size() override{
+      		return n;
+    	}
+   
 };
+	
