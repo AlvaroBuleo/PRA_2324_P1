@@ -90,7 +90,7 @@ public:
   	virtual   T remove(int pos) override{
     		Node<T>* aux = first;
     		Node<T>* elim;
-    		int borr;
+    		T borr;
     		if(pos > size()-1 || pos < 0)
       			throw std::out_of_range("Posición externa al array");
     		else{
